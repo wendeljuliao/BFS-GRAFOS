@@ -49,7 +49,7 @@ class JogoPacman {
             this.visitados[viz] = true;
 
             if (viz === destino) {
-                var path = [viz];
+                let path = [viz];
                 while (atual !== origem) {
                   path.push(atual);
                   atual = predecessor[atual];
