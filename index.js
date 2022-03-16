@@ -1,86 +1,101 @@
 class JogoPacman {
-  constructor(grafo) {
-    this.grafo = grafo;
-    this.visitados = [];
-    this.listaAtual = [];
-    for (let i = 0; i < grafo.length; i++) {
-      this.visitados[i] = false;
-    }
-  }
-
-  buscaLargura(origem, destino) {
-    if (origem === destino) {
-      return console.log("Chegou");
-    }
-
-    var atual;
-
-    var predecessor = {};
-
-    this.listaAtual.push(origem);
-    let listaVertices;
-
-    while (this.listaAtual.length > 0) {
-      atual = this.listaAtual.shift();
-      this.visitados[atual] = true;
-
-      //console.log("Array de visitados: " + this.visitados);
-      listaVertices = [];
-
-      for (let i = 0; i < this.grafo.length; i++) {
-        if (this.grafo[atual][i] === 1 && this.visitados[i] === false) {
-          //listaVertices.push(i + 1);
-          this.visitados[i] = true;
-
-          if (i === destino) {
-            //console.log([listaVertices]);
-            var path = [i];
-            while (atual !== origem) {
-              path.push(atual);
-              atual = predecessor[atual];
-            }
-            path.push(atual);
-            path.reverse();
-            console.log(path);
-            console.log("Chegou!");
-            return;
-          }
-
-          predecessor[i] = atual;
-
-          this.listaAtual.push(i);
-        }
+    constructor(grafo) {
+      this.grafo = grafo;
+      this.visitados = [];
+      this.fila = [];
+      for (let i = 0; i < grafo.length; i++) {
+        this.visitados[i] = false;
       }
     }
-    return false;
+
+    /**
+     * Obtém os vizinhos do "vertice" no "grafo" dado.
+     * @param {number[][]} grafo 
+     * @param {number} vertice 
+     * @returns {number[]}
+     */
+    getVizinhos(grafo, vertice){
+        const vizinhos = [];
+        for(let viz in grafo[vertice]){
+            if(grafo[vertice][viz] > 0) vizinhos.push(parseInt(viz));
+        }
+        return vizinhos;
+    }
+  
+    /**
+     * Realiza a Busca em Largura para encontrar o menor caminho entre origem e destino.
+     * @param {number} origem vértice de origem.
+     * @param {number} destino vértice de destino.
+     * @returns {number[]} menor caminho entre origem e destino.
+     */
+    buscaLargura(origem, destino) {
+      if (origem === destino) {
+        return console.log("Chegou");
+      }
+  
+      let atual;
+  
+      let predecessor = {};
+  
+      this.fila.push(origem);
+  
+      while (this.fila.length > 0) {
+        atual = this.fila.shift();
+        this.visitados[atual] = true;
+
+        for(let viz of this.getVizinhos(this.grafo, atual)){
+            if(this.visitados[viz] === true) continue
+
+            this.visitados[viz] = true;
+
+            if (viz === destino) {
+                var path = [viz];
+                while (atual !== origem) {
+                  path.push(atual);
+                  atual = predecessor[atual];
+                }
+                path.push(atual);
+                path.reverse();
+                console.log(path);
+                console.log("Chegou!");
+                return;
+              }
+    
+              predecessor[viz] = atual;
+    
+              this.fila.push(viz);
+
+        }
+      }
+      return false;
+    }
   }
-}
-
-const grafo = [
-  [0, 0, 0, 1, 0, 0],
-  [0, 0, 1, 1, 0, 0],
-  [0, 1, 0, 1, 0, 0],
-  [1, 1, 1, 0, 1, 1],
-  [0, 0, 0, 1, 0, 1],
-  [0, 0, 0, 1, 1, 0],
-];
-
-const grafo2 = [
-  [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-  [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-  [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-];
-
-jogoPacman = new JogoPacman(grafo2);
-jogoPacman.buscaLargura(0, 9);
+  
+  const grafo = [
+    [0, 0, 0, 1, 0, 0],
+    [0, 0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0],
+    [1, 1, 1, 0, 1, 1],
+    [0, 0, 0, 1, 0, 1],
+    [0, 0, 0, 1, 1, 0],
+  ];
+  
+  const grafo2 = [
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
+  ];
+  
+  jogoPacman = new JogoPacman(grafo2);
+  jogoPacman.buscaLargura(4, 9);
